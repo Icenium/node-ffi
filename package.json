@@ -21,10 +21,10 @@
   },
   "main": "./lib/ffi",
   "dependencies": {
-    "bindings": "*",
     "debug": "*",
     "ref": "*",
-    "ref-struct": "*"
+    "ref-struct": "*",
+    "prebuilt": "https://github.com/tailsu/node-prebuilt/tarball/master"
   },
   "devDependencies": {
     "expect.js": "*",
@@ -32,7 +32,8 @@
     "ref-array": "*"
   },
   "scripts": {
-    "test": "node-gyp rebuild --directory test && mocha -gc --reporter spec"
+    "test": "node-gyp rebuild --directory test && mocha -gc --reporter spec",
+	"install": "node ./build.js"
   },
   "repository": {
     "type": "git",

@@ -1,6 +1,6 @@
 {
   "name": "ffi",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "authors": [
     "Rick Branson",
     "Nathan Rajlich <nathan@tootallnate.net> (http://tootallnate.net)"
@@ -15,19 +15,20 @@
     "binding",
     "c"
   ],
-  "homepage": "http://github.com/rbranson/node-ffi",
+  "homepage": "http://github.com/node-ffi/node-ffi",
   "engines": {
     "node": ">=0.6.0"
   },
   "main": "./lib/ffi",
   "dependencies": {
-    "debug": "*",
+    "bindings": "~1.2.0",
+    "debug": "~1.0.1",
     "ref": "*",
     "ref-struct": "*",
+    "nan": "*",
     "prebuilt": "https://github.com/tailsu/node-prebuilt/tarball/master"
   },
   "devDependencies": {
-    "expect.js": "*",
     "mocha": "*",
     "ref-array": "*"
   },
@@ -37,9 +38,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "http://github.com/rbranson/node-ffi.git"
+    "url": "http://github.com/node-ffi/node-ffi.git"
   },
   "bugs": {
-    "url": "http://github.com/rbranson/node-ffi/issues"
+    "url": "http://github.com/node-ffi/node-ffi/issues"
   }
 }

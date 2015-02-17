@@ -27,24 +27,24 @@ describe('Callback', function () {
   })
 
   it('should not call "set()" of a pointer type', function () {
-    var voidType = Object.create(ref.types.void);
+    var voidType = Object.create(ref.types.void)
     voidType.get = function () {
-      throw new Error('"get()" should not be called');
+      throw new Error('"get()" should not be called')
     }
     voidType.set = function () {
-      throw new Error('"set()" should not be called');
+      throw new Error('"set()" should not be called')
     }
     var voidPtr = ref.refType(voidType)
     var called = false
     var cb = ffi.Callback(voidPtr, [ voidPtr ], function (ptr) {
       called = true
-      assert.equal(0, ptr.address());
+      assert.equal(0, ptr.address())
       return ptr
-    });
+    })
 
-    var fn = ffi.ForeignFunction(cb, voidPtr, [ voidPtr ]);
+    var fn = ffi.ForeignFunction(cb, voidPtr, [ voidPtr ])
     assert(!called)
-    var nul = fn(ref.NULL);
+    var nul = fn(ref.NULL)
     assert(called)
     assert(Buffer.isBuffer(nul))
     assert.equal(0, nul.address())
@@ -104,6 +104,26 @@ describe('Callback', function () {
     })
 
     /**
+     * See https://github.com/rbranson/node-ffi/issues/153.
+     */
+
+    it('multiple callback invocations from uv thread pool should be properly synchronized', function (done) {
+      this.timeout(10000)
+      var iterations = 30000
+      var cb = ffi.Callback('string', ['string'], function (val) {
+        if (val === "ping" && --iterations > 0) {
+	  return "pong"
+        }
+	return "end"
+      })
+      var pingPongFn = ffi.ForeignFunction(bindings.play_ping_pong, 'void', [ 'pointer' ])
+      pingPongFn.async(cb, function (err, ret) {
+        assert.equal(iterations, 0)
+	done()
+      })
+    })
+
+    /**
      * See https://github.com/rbranson/node-ffi/issues/72.
      * This is a tough issue. If we pass the ffi_closure Buffer to some foreign
      * C function, we really don't know *when* it's safe to dispose of the Buffer,
@@ -151,7 +171,18 @@ describe('Callback', function () {
       function finish () {
         bindings.call_cb()
         assert.equal(4, invokeCount)
+
         kill()
+        gc() // now ensure the inner "cb" Buffer is collected
+
+        // should throw an Error synchronously
+        try {
+          bindings.call_cb()
+          assert(false) // shouldn't get here
+        } catch (e) {
+          assert(/ffi/.test(e.message))
+        }
+
         done()
       }
     })
@@ -170,7 +201,12 @@ describe('Callback', function () {
       process.removeAllListeners('uncaughtException')
       process.once('uncaughtException', function (e) {
         assert(/ffi/.test(e.message))
-        listeners.forEach(process.emit.bind(process, 'uncaughtException'))
+
+        // re-add Mocha's listeners
+        listeners.forEach(function (fn) {
+          process.on('uncaughtException', fn)
+        })
+
         done()
       })
 

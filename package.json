@@ -23,8 +23,8 @@
   "dependencies": {
     "bindings": "~1.2.0",
     "debug": "~1.0.1",
-    "ref": "https://github.com/icenium/ref/tarball/vladimirov/node-0-12-support",
-    "ref-struct": "https://github.com/telerik/ref-struct/tarball/vladimirov/node-0-12-support",
+    "ref": "https://github.com/icenium/ref/tarball/master",
+    "ref-struct": "https://github.com/telerik/ref-struct/tarball/master",
     "nan": "*",
     "prebuilt": "https://github.com/tailsu/node-prebuilt/tarball/master"
   },

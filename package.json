@@ -25,7 +25,7 @@
     "debug": "~1.0.1",
     "ref": "https://github.com/icenium/ref/tarball/master",
     "ref-struct": "https://github.com/telerik/ref-struct/tarball/master",
-    "nan": "*",
+    "nan": "1",
     "prebuilt": "https://github.com/tailsu/node-prebuilt/tarball/master"
   },
   "devDependencies": {

@@ -1,10 +1,11 @@
 {
   "name": "ffi",
-  "version": "1.2.7",
+  "version": "1.3.2",
   "authors": [
     "Rick Branson",
     "Nathan Rajlich <nathan@tootallnate.net> (http://tootallnate.net)"
   ],
+  "license" : "MIT",
   "description": "A foreign function interface (FFI) for Node.js",
   "keywords": [
     "foreign",
@@ -17,15 +18,15 @@
   ],
   "homepage": "http://github.com/node-ffi/node-ffi",
   "engines": {
-    "node": ">=0.6.0"
+    "node": ">=0.10.0"
   },
   "main": "./lib/ffi",
   "dependencies": {
-    "bindings": "~1.2.0",
-    "debug": "~1.0.1",
+    "bindings": "*",
+    "debug": "2",
     "ref": "https://github.com/icenium/ref/tarball/master",
     "ref-struct": "https://github.com/telerik/ref-struct/tarball/master",
-    "nan": "1",
+    "nan": "^2.0.2"
     "prebuilt": "https://github.com/tailsu/node-prebuilt/tarball/master"
   },
   "devDependencies": {
@@ -42,5 +43,6 @@
   },
   "bugs": {
     "url": "http://github.com/node-ffi/node-ffi/issues"
-  }
+  },
+  "contributors": ["Gabor Mezo <gabor.mezo@outlook.com> (https://github.com/unbornchikken)"]
 }

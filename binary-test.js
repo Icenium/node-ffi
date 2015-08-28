@@ -1,4 +1,4 @@
 "use strict"
 
-var ffi = require("./lib/ffi");
+// var ffi = require("./lib/ffi");
 process.stdout.write("pass");

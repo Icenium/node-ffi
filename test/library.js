@@ -20,23 +20,30 @@ describe('Library', function () {
     assert(typeof l === 'object');
   })
 
-  if(process.platform === 'linux' || process.platform === 'darwin') {
   it('should accept `null` as a first argument', function () {
-    var thisFuncs = new Library(null, {
-      'printf': [ 'void', [ charPtr ] ]
-    })
-    assert(typeof thisFuncs.printf === 'function');
+    if (process.platform == 'win32') {
+      // On Windows, null refers to just the main executable (e.g. node.exe).
+      // Windows never searches for symbols across multiple DLL's.
+      // Note: Exporting symbols from an executable is unusual on Windows.
+      // Normally you only see exports from DLL's. It happens that node.exe
+      // does export symbols, so null as a first argument can be tested.
+      // This is an implementation detail of node, and could potentially
+      // change in the future (e.g. if node gets broken up into DLL's
+      // rather than being one large static linked executable).
+      var winFuncs = new Library(null, {
+        'uv_fs_open': [ 'void', [ charPtr ] ]
+      })
+      assert(typeof winFuncs.uv_fs_open === 'function');
+    } else {
+      // On POSIX, null refers to the global symbol table, and lets you use
+      // symbols in the main executable and loaded shared libaries.
+      var posixFuncs = new Library(null, {
+        'printf': [ 'void', [ charPtr ] ]
+      })
+      assert(typeof posixFuncs.printf === 'function');
+    }
   })
-  } else {
-    // when win32 skit ..
-  it.skip('should accept `null` as a first argument', function () {
-    var thisFuncs = new Library(null, {
-      'printf': [ 'void', [ charPtr ] ]
-    })
-    assert(typeof thisFuncs.printf === 'function');
-  })  
-  }
-  
+
   it('should accept a lib name as the first argument', function () {
     var lib = process.platform == 'win32' ? 'msvcrt' : 'libm'
     var libm = new Library(lib, {
@@ -67,50 +74,29 @@ describe('Library', function () {
       assert(e);
     }
   })
-  
-  if(process.platform === 'linux' || process.platform === 'darwin') {
+
   it('should work with "strcpy" and a 128 length string', function () {
+    var lib = process.platform == 'win32' ? 'msvcrt.dll' : null;
     var ZEROS_128 = Array(128 + 1).join('0');
     var buf = new Buffer(256);
-    var strcpy = new Library(null, {
+    var strcpy = new Library(lib, {
         'strcpy': [ charPtr, [ charPtr, 'string' ] ]
     }).strcpy;
     strcpy(buf, ZEROS_128);
     assert(buf.readCString() === ZEROS_128);
   })
-  } else {
-  it.skip('should work with "strcpy" and a 128 length string', function () {
-    var ZEROS_128 = Array(128 + 1).join('0');
-    var buf = new Buffer(256);
-    var strcpy = new Library(null, {
-        'strcpy': [ charPtr, [ charPtr, 'string' ] ]
-    }).strcpy;
-    strcpy(buf, ZEROS_128);
-    assert(buf.readCString() === ZEROS_128);
-  })
-  }
-  
-  if(process.platform === 'linux' || process.platform === 'darwin') {
+
   it('should work with "strcpy" and a 2k length string', function () {
+    var lib = process.platform == 'win32' ? 'msvcrt' : null;
     var ZEROS_2K = Array(2e3 + 1).join('0');
     var buf = new Buffer(4096);
-    var strcpy = new Library(null, {
+    var strcpy = new Library(lib, {
         'strcpy': [ charPtr, [ charPtr, 'string' ] ]
     }).strcpy;
     strcpy(buf, ZEROS_2K);
     assert(buf.readCString() === ZEROS_2K);
   })
-  } else {
-  it.skip('should work with "strcpy" and a 2k length string', function () {
-    var ZEROS_2K = Array(2e3 + 1).join('0');
-    var buf = new Buffer(4096);
-    var strcpy = new Library(null, {
-        'strcpy': [ charPtr, [ charPtr, 'string' ] ]
-    }).strcpy;
-    strcpy(buf, ZEROS_2K);
-    assert(buf.readCString() === ZEROS_2K);
-  })
-  }
+
   if (process.platform == 'win32') {
 
     it('should work with "GetTimeOfDay" and a "FILETIME" Struct pointer',

@@ -28,11 +28,12 @@ describe('ForeignFunction', function () {
     assert.equal(1234, abs(-1234))
   })
 
-  it.skip('should throw an Error with a meaningful message when type\'s `set()` throws', function () {
+  it('should throw an Error with a meaningful message when type\'s `set()` throws', function () {
     var _abs = bindings.abs
     var abs = ffi.ForeignFunction(_abs, 'int', [ 'int' ])
     assert.throws(function () {
-      abs('a string?!?!')
+      // Changed, because returning string is not failing because of this; https://github.com/iojs/io.js/issues/1161
+      abs(11111111111111111111)
     }, /error setting argument 0/)
   })
 
@@ -136,7 +137,7 @@ describe('ForeignFunction', function () {
     assert.equal(20, a.array.length)
     a.num = 69
     for (var i = 0; i < 20; i++) {
-      a.array[i] = i / 3.14;
+      a.array[i] = i / 3.14
     }
 
     var b = array_in_struct(a)
@@ -147,6 +148,15 @@ describe('ForeignFunction', function () {
       // Math.round() because of floating point rounding erros
       assert.equal(i, Math.round(b.array[i]))
     }
+  })
+
+  // allow a Buffer backing store to be used as a "string" FFI argument
+  // https://github.com/node-ffi/node-ffi/issues/169
+  it('should call the static "test_169" bindings', function () {
+    var test = ffi.ForeignFunction(bindings.test_169, 'int', [ 'string', 'int' ])
+    var b = new Buffer(20)
+    var len = test(b, b.length)
+    assert.equal('sample str', b.toString('ascii', 0, len))
   })
 
   it('should not call the "ref()" function of its arguments', function () {
@@ -171,33 +181,24 @@ describe('ForeignFunction', function () {
       })
     })
 
-    if(process.version.split(".")[1]<11){
     it('should invoke the callback with an Error with a meaningful message when type\'s `set()` throws', function (done) {
       var _abs = bindings.abs
       var abs = ffi.ForeignFunction(_abs, 'int', [ 'int' ])
 
-      abs.async('a string!?!?', function (err, res) {
+      // Changed, because returning string is not failing because of this; https://github.com/iojs/io.js/issues/1161
+      abs.async(1111111111111111111111, function (err, res) {
+        try {
           assert(err)
           assert(/error setting argument 0/.test(err.message))
           assert.equal('undefined', typeof res)
           done()
-      });
+        }
+        catch (e) {
+          done(e)
+        }
+      })
     })
-    } else {
-      // when node > v0.10 skip this test...
-    it.skip('should invoke the callback with an Error with a meaningful message when type\'s `set()` throws', function (done) {
-      var _abs = bindings.abs
-      var abs = ffi.ForeignFunction(_abs, 'int', [ 'int' ])
 
-      abs.async('a string!?!?', function (err, res) {
-          assert(err)
-          assert(/error setting argument 0/.test(err.message))
-          assert.equal('undefined', typeof res)
-          done()
-      });
-    })
-    }
-    
   })
 
 })
